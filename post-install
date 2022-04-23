@@ -1,0 +1,67 @@
+#!/bin/sh
+
+USER_NAME=hbr
+
+# exit on errors
+set -e
+
+infobox() {
+	border_length=$(( ${#1} + 2 ))
+	printf "\n${bold}%${border_length}s\n" | tr " " "="
+	echo " $1 "
+	printf "%${border_length}s${normal}\n\n" | tr " " "="
+}
+
+complete_steps() {
+	for step in "$@"; do
+		sed -i "s/^$step$/#$step/" "$0"
+	done
+}
+
+welcome() {
+    clear
+    echo "This post-installation script will perform the following tasks:"
+    echo "- Install a very small set of essential packages"
+    echo "- Create a non-root user ($USER_NAME)"
+    echo "- Enable the Docker service to run at boot (and start it)"
+    echo
+    read -rp "Proceed? (y/N) " proceed
+    if echo "$proceed" | grep -vE "^[yY]$"; then
+        exit
+    fi
+}
+
+install_essential_packages() {
+    infobox "Installing essential packages"
+    apk add doas docker
+
+    complete_steps install_packages
+}
+
+create_user() {
+    infobox "Creating '$USER_NAME' user"
+    adduser "$USER_NAME"
+    echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
+
+    complete_steps create_user
+}
+
+enable_docker_service() {
+    infobox "Enabling Docker service to run on boot"
+    rc-update add docker
+    rc-service docker start
+
+    infobox "Adding user '$USER_NAME' to 'docker' group"
+    adduser hbr docker
+
+    complete_steps enable_docker_service welcome
+}
+
+welcome
+install_essential_packages
+create_user
+enable_docker_service
+
+infobox "Post-installation finished! this script will delete itself now"
+
+rm -f $0
