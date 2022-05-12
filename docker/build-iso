@@ -9,6 +9,7 @@ echo "================================================================="
 echo
 
 cd $HOME/alpine.sh
+abuild checksum
 abuild -r
 
 echo
