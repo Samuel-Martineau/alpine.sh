@@ -1,9 +1,9 @@
 #!/bin/sh
 
-USER_NAME=hbr
-
 # exit on errors
 set -e
+
+. /usr/bin/answerfile
 
 infobox() {
 	border_length=$(( ${#1} + 2 ))
@@ -33,15 +33,40 @@ welcome() {
 
 install_essential_packages() {
     infobox "Installing essential packages"
-    apk add doas docker
+    apk add doas docker git make xorg-server xf86-input-libinput eudev mesa udev-init-scripts udev-init-scripts-openrc
 
     complete_steps install_packages
+}
+
+# mouse and keyboard don't work properly on Xorg with mdev, eudev is required
+disable_mdev() {
+    rc-service -s mdev stop
+    rc-update delete mdev sysinit
+
+    complete_steps disable_mdev
+}
+
+# mouse and keyboard don't work properly on Xorg with mdev, eudev is required
+enable_eudev() {
+    rc-update add udev sysinit
+    rc-update add udev-trigger sysinit
+    rc-update add udev-settle sysinit
+    rc-update add udev-postmount default
+    rc-service udev start
+
+    complete_steps enable_eudev
 }
 
 create_user() {
     infobox "Creating '$USER_NAME' user"
     adduser "$USER_NAME"
+
+    infobox "Giving super user permissions to '$USER_NAME'"
     echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
+
+    infobox "Adding '$USER_NAME' to 'video' and 'input' groups"
+    addgroup "$USER_NAME" video
+    addgroup "$USER_NAME" input
 
     complete_steps create_user
 }
@@ -59,6 +84,8 @@ enable_docker_service() {
 
 welcome
 install_essential_packages
+disable_mdev
+enable_eudev
 create_user
 enable_docker_service
 

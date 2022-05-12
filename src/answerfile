@@ -15,3 +15,6 @@ APKREPOSOPTS="-1 -c"
 SSHDOPTS="-c openssh"
 NTPOPTS="-c openntpd"
 DISKOPTS="-m sys /dev/sda"
+
+# post-install variables
+USER_NAME=hbr
