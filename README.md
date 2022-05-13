@@ -6,6 +6,7 @@
 
 - [Generating the ISO](#generating-the-iso)
 - [Installation](#installation)
+- [Post-installation](#post-installation)
 
 ### Generating the ISO
 
@@ -39,17 +40,33 @@ root, and install `alpine.sh` package by running:
 apk add alpine.sh
 ```
 
-After installing `alpine.sh`, a answerfile will be created at `/usr/bin/answerfile`,
-edit it accordingly to your needs and run the command below to install Alpine:
+After installing `alpine.sh`, a answerfile will be created at
+`/etc/profile.d/answerfile`, edit it accordingly to your needs, these settings
+will determine many important aspects of your system
+
+> Remember to either log out and log in again for the variables to be set on
+your environment or to source it manually by running
+`. /etc/profile.d/answerfile`
+
+With that out of the way, run the command below to install Alpine:
 
 ```
-setup-alpine -f /usr/bin/answerfile
+setup-alpine
 ```
 
 > The installation process will be entirely automated, with the exception of the
 root password, and the confirmation when formatting/partitioning the disk
 
-When the installer finishes, remove the installation media and reboot the
-computer, log in as root, and run `post-install` (simply by typing it's name)
-to perform the finishing touches required to make the system more usable, and
-after that, logout, and log in again as your (non-root) user
+### Post-installation
+
+When the installer finishes, follow the steps below:
+
+- Remove the installation media
+- Reboot the computer
+- Log in as root, and run `post-install` (simply by typing it's name)
+
+> The `post-install` script performs the finishing touches required to make the
+system more usable, and after that, logout, and log in again as your (non-root)
+user
+
+And then you're done, enjoy your minimal Alpine Linux installation!

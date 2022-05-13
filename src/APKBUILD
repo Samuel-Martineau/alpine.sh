@@ -6,17 +6,16 @@ pkgdesc="An answerfile and automated post-install script for Alpine Linux"
 url="https://git.sr.ht/~henriquehbr/alpine.sh"
 arch="all"
 license="GPL-3.0-or-later"
-source="answerfile post-install"
+source="answerfile.sh post-install"
 options="!check"
 
 package() {
-    installation_path="$pkgdir"/usr/bin
-	mkdir -p "$installation_path"
-	cp -f post-install "$installation_path"
-    cp -f answerfile "$installation_path"
-	chmod 755 "$installation_path"/post-install
+    mkdir -p "$pkgdir"/etc/profile.d "$pkgdir"/usr/bin
+    chmod +x post-install
+    cp -f answerfile.sh "$pkgdir"/etc/profile.d
+	cp -f post-install "$pkgdir"/usr/bin
 }
 sha512sums="
-1b7725abb2d2760d4580449cd5e028af77c5e9947725e19ffca6051a153596bf7ade5049be5f1ae92477dd9837c031e19efa5d0c0cdaf8710f6bd9eeb11721a5  answerfile
-c23e69cea2af604a89ad6861510200acb604cad9f93413a6b587a9918dbcf80b816cbdb62a05e53ddda404bed642f3dcd3cea64eeb3764059375a720890d664a  post-install
+1c5919af481e8ffdf02d301c130b2bc4be6bdfdbaf85e4064e41b4b341b82679f400ddc370f0f4679a143e18bcfca7933e60d80f6ce94d2aae188b497ae0176a  answerfile.sh
+4b259a49564a3179f03ba7af45cc04e17754c1d38a625ea49322e405420ac9db15db85099d6a5803f9f7d78cc9331b0dc2b42cde277a237a81cc810fe1b14a04  post-install
 "

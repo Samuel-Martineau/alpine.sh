@@ -1,3 +1,8 @@
+#!/bin/sh
+
+# exports all variables
+set -a
+
 KEYMAPOPTS="us us"
 HOSTNAMEOPTS="-n fit15s"
 INTERFACESOPTS="
@@ -16,5 +21,5 @@ SSHDOPTS="-c openssh"
 NTPOPTS="-c openntpd"
 DISKOPTS="-m sys /dev/sda"
 
-# post-install variables
+########## post-install variables ##########
 USER_NAME=hbr

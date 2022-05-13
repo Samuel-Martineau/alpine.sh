@@ -3,8 +3,6 @@
 # exit on errors
 set -e
 
-. /usr/bin/answerfile
-
 infobox() {
 	border_length=$(( ${#1} + 2 ))
 	printf "\n${bold}%${border_length}s\n" | tr " " "="
@@ -89,6 +87,5 @@ enable_eudev
 create_user
 enable_docker_service
 
-infobox "Post-installation finished! this script will delete itself now"
-
-rm -f $0
+infobox "Post-installation finished!"
+apk del alpine.sh
