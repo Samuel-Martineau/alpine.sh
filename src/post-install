@@ -31,7 +31,7 @@ welcome() {
 
 install_essential_packages() {
     infobox "Installing essential packages"
-    apk add doas docker git make xorg-server xf86-input-libinput eudev alsa-utils pulseaudio pulseaudio-utils mesa udev-init-scripts udev-init-scripts-openrc
+    apk add doas docker git make eudev alsa-utils pulseaudio pulseaudio-utils mesa udev-init-scripts udev-init-scripts-openrc
 
     complete_steps install_packages
 }
