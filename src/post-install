@@ -52,12 +52,11 @@ welcome() {
 # pulseaudio -> required to make the audio work properly
 # pulseaudio-utils -> provides "pactl" which is used to generate "pulseaudio"
 #                     shared sockets to be used in containerized applications
-# mesa -> marked for removal
 # udev-init-scripts -> required for udev to work
 # udev-init-scripts-openrc -> required for udev to work
 install_essential_packages() {
     _infobox "Installing essential packages"
-    apk add doas docker git make eudev alsa-utils pulseaudio pulseaudio-utils mesa udev-init-scripts udev-init-scripts-openrc
+    apk add doas docker git make eudev alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
 
     _complete_steps install_packages
 }
