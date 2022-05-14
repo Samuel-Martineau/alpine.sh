@@ -57,16 +57,16 @@ setup-alpine
 > The installation process will be entirely automated, with the exception of the
 root password, and the confirmation when formatting/partitioning the disk
 
+When the installer finishes, remove the installation media, reboot, and log-in
+as root using the password you defined
+
 ### Post-installation
 
-When the installer finishes, follow the steps below:
+The `post-install` script performs the finishing touches required to make the
+system more usable, to run it, simply run the `post-install` command and follow
+the instructions on screen
 
-- Remove the installation media
-- Reboot the computer
-- Log in as root, and run `post-install` (simply by typing it's name)
-
-> The `post-install` script performs the finishing touches required to make the
-system more usable, and after that, logout, and log in again as your (non-root)
-user
+When the post-installation is done, log-out and log-in again as your non-root
+user, using the name and password you specified
 
 And then you're done, enjoy your minimal Alpine Linux installation!
