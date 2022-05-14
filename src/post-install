@@ -31,7 +31,7 @@ welcome() {
 
 install_essential_packages() {
     infobox "Installing essential packages"
-    apk add doas docker git make xorg-server xf86-input-libinput eudev mesa udev-init-scripts udev-init-scripts-openrc
+    apk add doas docker git make xorg-server xf86-input-libinput eudev alsa-utils pulseaudio pulseaudio-utils mesa udev-init-scripts udev-init-scripts-openrc
 
     complete_steps install_packages
 }
@@ -62,9 +62,10 @@ create_user() {
     infobox "Giving super user permissions to '$USER_NAME'"
     echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
 
-    infobox "Adding '$USER_NAME' to 'video' and 'input' groups"
+    infobox "Adding '$USER_NAME' to 'video', 'input' and 'audio' groups"
     addgroup "$USER_NAME" video
     addgroup "$USER_NAME" input
+    addgroup "$USER_NAME" audio
 
     complete_steps create_user
 }
