@@ -1,8 +1,15 @@
 #!/bin/sh
 
+# this script performs the finishing touches required to make the system more
+# usable
+
+# NOTE: all functions prefixed with a underscore (_) are helper functions and
+# shouldn't be considered as installation steps
+
 # exit on errors
 set -e
 
+# displays a given message in a nicely formatted box
 infobox() {
 	border_length=$(( ${#1} + 2 ))
 	printf "\n${bold}%${border_length}s\n" | tr " " "="
@@ -10,16 +17,22 @@ infobox() {
 	printf "%${border_length}s${normal}\n\n" | tr " " "="
 }
 
+# comments out a list of given installation steps to avoid running them again on
+# a subsequent execution of this script
 complete_steps() {
 	for step in "$@"; do
 		sed -i "s/^$step$/#$step/" "$0"
 	done
 }
 
+# displays a welcome message specifying a summary of actions that will be
+# performed by the script, and prompt the user for confirmation to proceed with
+# the post-installation process
 welcome() {
     clear
     echo "This post-installation script will perform the following tasks:"
-    echo "- Install a very small set of essential packages"
+    echo "- Install a set of essential packages"
+    echo "- Replace 'mdev' with 'eudev'"
     echo "- Create a non-root user ($USER_NAME)"
     echo "- Enable the Docker service to run at boot (and start it)"
     echo
@@ -29,6 +42,19 @@ welcome() {
     fi
 }
 
+# installs a set of packages to make the system more usable
+# ---------------------------------------------------------
+# doas -> grant superuser permissions to the non-root user
+# docker -> run containerized applications from "docker-experiment"
+# git -> create and clone git repositories
+# make -> create and run tasks from Makefiles (required by "docker-experiment")
+# alsa-utils -> provides "alsamixer" which is used to control the audio volume
+# pulseaudio -> required to make the audio work properly
+# pulseaudio-utils -> provides "pactl" which is used to generate "pulseaudio"
+#                     shared sockets to be used in containerized applications
+# mesa -> marked for removal
+# udev-init-scripts -> required for udev to work
+# udev-init-scripts-openrc -> required for udev to work
 install_essential_packages() {
     infobox "Installing essential packages"
     apk add doas docker git make eudev alsa-utils pulseaudio pulseaudio-utils mesa udev-init-scripts udev-init-scripts-openrc
@@ -36,7 +62,9 @@ install_essential_packages() {
     complete_steps install_packages
 }
 
-# mouse and keyboard don't work properly on Xorg with mdev, eudev is required
+# disables "mdev" and delete it's service from openrc
+# mouse and keyboard don't work properly on Xorg with "mdev", "eudev" is
+# required
 disable_mdev() {
     rc-service -s mdev stop
     rc-update delete mdev sysinit
@@ -44,7 +72,7 @@ disable_mdev() {
     complete_steps disable_mdev
 }
 
-# mouse and keyboard don't work properly on Xorg with mdev, eudev is required
+# enables "eudev" and it's services
 enable_eudev() {
     rc-update add udev sysinit
     rc-update add udev-trigger sysinit
@@ -55,6 +83,8 @@ enable_eudev() {
     complete_steps enable_eudev
 }
 
+# creates a non-root user using the "$USER_NAME" defined on the answerfile
+# password is prompted as usual, for security reasons
 create_user() {
     infobox "Creating '$USER_NAME' user"
     adduser "$USER_NAME"
@@ -70,6 +100,8 @@ create_user() {
     complete_steps create_user
 }
 
+# enables docker service to run on boot, starts it, and add the non-root user
+# to the "docker" group so it can be accessed by them
 enable_docker_service() {
     infobox "Enabling Docker service to run on boot"
     rc-update add docker
