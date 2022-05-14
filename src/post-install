@@ -10,7 +10,7 @@
 set -e
 
 # displays a given message in a nicely formatted box
-infobox() {
+_infobox() {
 	border_length=$(( ${#1} + 2 ))
 	printf "\n${bold}%${border_length}s\n" | tr " " "="
 	echo " $1 "
@@ -19,7 +19,7 @@ infobox() {
 
 # comments out a list of given installation steps to avoid running them again on
 # a subsequent execution of this script
-complete_steps() {
+_complete_steps() {
 	for step in "$@"; do
 		sed -i "s/^$step$/#$step/" "$0"
 	done
@@ -56,10 +56,10 @@ welcome() {
 # udev-init-scripts -> required for udev to work
 # udev-init-scripts-openrc -> required for udev to work
 install_essential_packages() {
-    infobox "Installing essential packages"
+    _infobox "Installing essential packages"
     apk add doas docker git make eudev alsa-utils pulseaudio pulseaudio-utils mesa udev-init-scripts udev-init-scripts-openrc
 
-    complete_steps install_packages
+    _complete_steps install_packages
 }
 
 # disables "mdev" and delete it's service from openrc
@@ -69,7 +69,7 @@ disable_mdev() {
     rc-service -s mdev stop
     rc-update delete mdev sysinit
 
-    complete_steps disable_mdev
+    _complete_steps disable_mdev
 }
 
 # enables "eudev" and it's services
@@ -80,37 +80,37 @@ enable_eudev() {
     rc-update add udev-postmount default
     rc-service udev start
 
-    complete_steps enable_eudev
+    _complete_steps enable_eudev
 }
 
 # creates a non-root user using the "$USER_NAME" defined on the answerfile
 # password is prompted as usual, for security reasons
 create_user() {
-    infobox "Creating '$USER_NAME' user"
+    _infobox "Creating '$USER_NAME' user"
     adduser "$USER_NAME"
 
-    infobox "Giving super user permissions to '$USER_NAME'"
+    _infobox "Giving super user permissions to '$USER_NAME'"
     echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
 
-    infobox "Adding '$USER_NAME' to 'video', 'input' and 'audio' groups"
+    _infobox "Adding '$USER_NAME' to 'video', 'input' and 'audio' groups"
     addgroup "$USER_NAME" video
     addgroup "$USER_NAME" input
     addgroup "$USER_NAME" audio
 
-    complete_steps create_user
+    _complete_steps create_user
 }
 
 # enables docker service to run on boot, starts it, and add the non-root user
 # to the "docker" group so it can be accessed by them
 enable_docker_service() {
-    infobox "Enabling Docker service to run on boot"
+    _infobox "Enabling Docker service to run on boot"
     rc-update add docker
     rc-service docker start
 
-    infobox "Adding user '$USER_NAME' to 'docker' group"
+    _infobox "Adding user '$USER_NAME' to 'docker' group"
     adduser hbr docker
 
-    complete_steps enable_docker_service welcome
+    _complete_steps enable_docker_service welcome
 }
 
 welcome
@@ -120,5 +120,5 @@ enable_eudev
 create_user
 enable_docker_service
 
-infobox "Post-installation finished!"
+_infobox "Post-installation finished!"
 apk del alpine.sh
