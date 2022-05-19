@@ -48,6 +48,7 @@ welcome() {
 # docker -> run containerized applications from "docker-experiment"
 # git -> create and clone git repositories
 # make -> create and run tasks from Makefiles (required by "docker-experiment")
+# eudev -> replaces "mdev" with proper support for keyboard and mouse on Xorg
 # alsa-utils -> provides "alsamixer" which is used to control the audio volume
 # pulseaudio -> required to make the audio work properly
 # pulseaudio-utils -> provides "pactl" which is used to generate "pulseaudio"
