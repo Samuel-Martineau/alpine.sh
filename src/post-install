@@ -6,6 +6,12 @@
 # NOTE: all functions prefixed with a underscore (_) are helper functions and
 # shouldn't be considered as installation steps
 
+# TODO: think of a way of supporting containerized wayland workspaces without
+#       having to install a wayland-only dependency for keeping things minimal
+#       (in this case, the dependency being "seatd")
+
+# ------------------------------------------------------------------------------
+
 # exit on errors
 set -e
 
@@ -49,6 +55,7 @@ welcome() {
 # git -> create and clone git repositories
 # make -> create and run tasks from Makefiles (required by "docker-experiment")
 # eudev -> replaces "mdev" with proper support for keyboard and mouse on Xorg
+# seatd -> required for running wayland compositors
 # alsa-utils -> provides "alsamixer" which is used to control the audio volume
 # pulseaudio -> required to make the audio work properly
 # pulseaudio-utils -> provides "pactl" which is used to generate "pulseaudio"
@@ -57,7 +64,7 @@ welcome() {
 # udev-init-scripts-openrc -> required for udev to work
 install_essential_packages() {
     _infobox "Installing essential packages"
-    apk add doas docker git make eudev alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
+    apk add doas docker git make eudev seatd alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
 
     _complete_steps install_packages
 }
@@ -81,6 +88,15 @@ enable_eudev() {
     rc-service udev start
 
     _complete_steps enable_eudev
+}
+
+# enables "seatd" in order to run wayland compositors
+enable_seatd() {
+    _infobox "Enabling seatd service to run on boot"
+    rc-update add seatd
+    rc-service seatd start
+
+    _complete_steps enable_seatd
 }
 
 # creates a non-root user using the "$USER_NAME" defined on the answerfile
@@ -117,6 +133,7 @@ welcome
 install_essential_packages
 disable_mdev
 enable_eudev
+enable_seatd
 create_user
 enable_docker_service
 
