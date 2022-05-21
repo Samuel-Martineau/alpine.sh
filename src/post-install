@@ -103,6 +103,9 @@ enable_seatd() {
 # password is prompted as usual, for security reasons
 create_user() {
     _infobox "Creating '$USER_NAME' user"
+    # forcefully delete the user for re-creating it on subsequent runs in case
+    # the password prompt is interrupted
+    deluser "$USER_NAME" > /dev/null 2>&1 || :
     adduser "$USER_NAME"
 
     _infobox "Giving super user permissions to '$USER_NAME'"
