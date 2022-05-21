@@ -38,9 +38,9 @@ welcome() {
     clear
     echo "This post-installation script will perform the following tasks:"
     echo "- Install a set of essential packages"
+    echo "- Create a non-root user ($USER_NAME)"
     echo "- Replace 'mdev' with 'eudev'"
     echo "- Enable 'seatd' service to run at boot (and start it)"
-    echo "- Create a non-root user ($USER_NAME)"
     echo "- Enable the Docker service to run at boot (and start it)"
     echo
     read -rp "Proceed? (y/N) " proceed
@@ -68,6 +68,26 @@ install_essential_packages() {
     apk add doas docker git make eudev seatd alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
 
     _complete_steps install_essential_packages
+}
+
+# creates a non-root user using the "$USER_NAME" defined on the answerfile
+# password is prompted as usual, for security reasons
+create_user() {
+    _infobox "Creating '$USER_NAME' user"
+    # forcefully delete the user for re-creating it on subsequent runs in case
+    # the password prompt is interrupted
+    deluser "$USER_NAME" > /dev/null 2>&1 || :
+    adduser "$USER_NAME"
+
+    _infobox "Giving super user permissions to '$USER_NAME'"
+    echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
+
+    _infobox "Adding '$USER_NAME' to 'video', 'input' and 'audio' groups"
+    addgroup "$USER_NAME" video
+    addgroup "$USER_NAME" input
+    addgroup "$USER_NAME" audio
+
+    _complete_steps create_user
 }
 
 # disables "mdev" and delete it's service from openrc
@@ -100,26 +120,6 @@ enable_seatd() {
     _complete_steps enable_seatd
 }
 
-# creates a non-root user using the "$USER_NAME" defined on the answerfile
-# password is prompted as usual, for security reasons
-create_user() {
-    _infobox "Creating '$USER_NAME' user"
-    # forcefully delete the user for re-creating it on subsequent runs in case
-    # the password prompt is interrupted
-    deluser "$USER_NAME" > /dev/null 2>&1 || :
-    adduser "$USER_NAME"
-
-    _infobox "Giving super user permissions to '$USER_NAME'"
-    echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
-
-    _infobox "Adding '$USER_NAME' to 'video', 'input' and 'audio' groups"
-    addgroup "$USER_NAME" video
-    addgroup "$USER_NAME" input
-    addgroup "$USER_NAME" audio
-
-    _complete_steps create_user
-}
-
 # enables docker service to run on boot, starts it, and add the non-root user
 # to the "docker" group so it can be accessed by them
 enable_docker_service() {
@@ -135,10 +135,10 @@ enable_docker_service() {
 
 welcome
 install_essential_packages
+create_user
 disable_mdev
 enable_eudev
 enable_seatd
-create_user
 enable_docker_service
 
 _infobox "Post-installation finished!"
