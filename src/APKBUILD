@@ -16,6 +16,6 @@ package() {
 	cp -f post-install "$pkgdir"/usr/bin
 }
 sha512sums="
-1c5919af481e8ffdf02d301c130b2bc4be6bdfdbaf85e4064e41b4b341b82679f400ddc370f0f4679a143e18bcfca7933e60d80f6ce94d2aae188b497ae0176a  answerfile.sh
+f81c040c284b83ba8a63bb603435adb3b32b97582e844edab0db8352ba5459b76bb1f4ed0da11cd2400f5e2caf53185a729869a8885f1ccf756c9dfda4b072e7  answerfile.sh
 48a5ba2f43bacdc0533d4094afaab27111aee9df169fa42e1dcf363dcde64a926add95c257007d59b08c77ce4ce2659324ffff0835fe360f4291410cdcf514d5  post-install
 "
