@@ -39,6 +39,7 @@ welcome() {
     echo "This post-installation script will perform the following tasks:"
     echo "- Install a set of essential packages"
     echo "- Replace 'mdev' with 'eudev'"
+    echo "- Enable 'seatd' service to run at boot (and start it)"
     echo "- Create a non-root user ($USER_NAME)"
     echo "- Enable the Docker service to run at boot (and start it)"
     echo
