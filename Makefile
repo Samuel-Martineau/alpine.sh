@@ -15,3 +15,12 @@ run-container:
 		-v $(PWD)/src:/home/builder/alpine.sh \
 		-v $(PWD)/iso:/home/builder/iso \
 		alpine.sh
+
+release:
+	docker run \
+	    --rm \
+	    -t \
+	    -v $(PWD):/repo \
+	    -e GIT_NAME="$$(git config user.name)" \
+		-e GIT_EMAIL="$$(git config user.email)" \
+	    henriquehbr/tagit:latest
