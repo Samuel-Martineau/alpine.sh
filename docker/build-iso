@@ -1,7 +1,5 @@
 #!/bin/sh
 
-REPO_VERSION=v3.15
-
 clear
 echo "================================================================="
 echo " Building APK containing answerfile and post-installation script "
@@ -20,7 +18,7 @@ echo
 
 $HOME/aports/scripts/mkimage.sh \
     --outdir $HOME/iso \
-    --tag $REPO_VERSION \
-    --repository http://dl-cdn.alpinelinux.org/alpine/$REPO_VERSION/main \
+    --tag v$ALPINE_VERSION \
+    --repository http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_VERSION/main \
     --extra-repository $HOME/packages/builder \
     --profile custom

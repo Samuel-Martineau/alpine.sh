@@ -1,9 +1,15 @@
 # use Docker BuildKit for faster builds with caching enabled
 export DOCKER_BUILDKIT=1
 
-build-container:
+export ALPINE_VERSION=3.16
+
+clean-container:
+	docker rmi -f alpine.sh
+
+build-container: clean-container
 	docker build \
 		-t alpine.sh \
+		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
 		--build-arg HOST_UID=$$(id -u) \
 		docker
 
@@ -12,6 +18,7 @@ run-container:
 	docker run \
 		--rm \
 		-it \
+		-e ALPINE_VERSION=$(ALPINE_VERSION) \
 		-v $(PWD)/src:/home/builder/alpine.sh \
 		-v $(PWD)/iso:/home/builder/iso \
 		alpine.sh
