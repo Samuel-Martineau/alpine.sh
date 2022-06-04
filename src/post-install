@@ -35,10 +35,11 @@ _complete_steps() {
 # performed by the script, and prompt the user for confirmation to proceed with
 # the post-installation process
 welcome() {
+    export USER_NAME=$(cat /etc/group | grep wheel | cut -d : -f 4 | cut -d , -f 2)
     clear
     echo "This post-installation script will perform the following tasks:"
     echo "- Install a set of essential packages"
-    echo "- Create a non-root user ($USER_NAME)"
+    echo "- Setup non-root user ($USER_NAME) password, and add it to the 'docker' group"
     echo "- Replace 'mdev' with 'eudev'"
     echo "- Enable 'seatd' service to run at boot (and start it)"
     echo "- Enable the Docker service to run at boot (and start it)"
@@ -51,7 +52,6 @@ welcome() {
 
 # installs a set of packages to make the system more usable
 # ---------------------------------------------------------
-# doas -> grant superuser permissions to the non-root user
 # docker -> run containerized applications from "docker-experiment"
 # git -> create and clone git repositories
 # make -> create and run tasks from Makefiles (required by "docker-experiment")
@@ -65,29 +65,28 @@ welcome() {
 # udev-init-scripts-openrc -> required for udev to work
 install_essential_packages() {
     _infobox "Installing essential packages"
-    apk add doas docker git make eudev seatd alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
+    apk add docker git make eudev seatd alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
 
     _complete_steps install_essential_packages
 }
 
-# creates a non-root user using the "$USER_NAME" defined on the answerfile
-# password is prompted as usual, for security reasons
-create_user() {
-    _infobox "Creating '$USER_NAME' user"
-    # forcefully delete the user for re-creating it on subsequent runs in case
-    # the password prompt is interrupted
-    deluser "$USER_NAME" > /dev/null 2>&1 || :
-    adduser "$USER_NAME"
+# set the non-root user password
+# create the non-root user directory
+# add the non-root user to the 'docker' group (allowing to run docker commands)
+setup_user() {
+    _infobox "Setting up '$USER_NAME' password"
+    passwd "$USER_NAME"
 
-    _infobox "Giving super user permissions to '$USER_NAME'"
-    echo "permit $USER_NAME as root" > /etc/doas.d/doas.conf
+    # for some strange reason, user directories created with setup-user doesn't
+    # persist reboot
+    _infobox "Creating '$USER_NAME' user directory at '/home/$USER_NAME'"
+    mkdir -p /home/$USER_NAME
+    chown -R $USER_NAME:$USER_NAME /home/$USER_NAME
 
-    _infobox "Adding '$USER_NAME' to 'video', 'input' and 'audio' groups"
-    addgroup "$USER_NAME" video
-    addgroup "$USER_NAME" input
-    addgroup "$USER_NAME" audio
+    _infobox "Adding '$USER_NAME' to the 'docker' group"
+    addgroup "$USER_NAME" docker
 
-    _complete_steps create_user
+    _complete_steps setup_user
 }
 
 # disables "mdev" and delete it's service from openrc
@@ -120,22 +119,18 @@ enable_seatd() {
     _complete_steps enable_seatd
 }
 
-# enables docker service to run on boot, starts it, and add the non-root user
-# to the "docker" group so it can be accessed by them
+# enables docker service to run on boot and starts it
 enable_docker_service() {
     _infobox "Enabling Docker service to run on boot"
     rc-update add docker
     rc-service docker start
-
-    _infobox "Adding user '$USER_NAME' to 'docker' group"
-    adduser hbr docker
 
     _complete_steps enable_docker_service welcome
 }
 
 welcome
 install_essential_packages
-create_user
+setup_user
 disable_mdev
 enable_eudev
 enable_seatd

@@ -39,6 +39,13 @@ PROXYOPTS="none"
 # -1 -> add first mirror on the list (normally a CDN)
 APKREPOSOPTS="-1 -c"
 
+# -a -> create admin user, add to wheel group and set up doas
+# -f -> set full name for user
+# -g -> comma or space separated list of groups to add user to
+# -k -> SSH key or URL to SSH key (e.g: https://gitlab.alpinelinux.org/user.keys)
+#       or 'none' for no key
+USEROPTS="-a -g video,input,audio hbr"
+
 # -c -> choice of SSH daemon: openssh, dropbear, none
 # -k -> authorized key for root (HTTP(S)/FTP URL, the public key itself or 'none')
 SSHDOPTS="-c openssh"
@@ -56,6 +63,3 @@ NTPOPTS="-c openntpd"
 # -s -> use SWAPSIZE MB instead of autodetecting swap size (use 0 to disable swap)
 # -v -> be more verbose about what is happening
 DISKOPTS="-m sys /dev/sda"
-
-########## post-install variables ##########
-USER_NAME=hbr
