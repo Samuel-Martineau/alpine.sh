@@ -21,7 +21,7 @@ make build-iso
 
 When it's done, the ISO will be located on the `iso` directory
 
-> If you only want to only update the `APKBUILD` checksums, pass the
+> If you only want to only update `APKBUILD` checksums, pass the
 > `onlychecksum=0` argument when running `build-iso`, example below:
 >
 > ```
