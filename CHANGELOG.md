@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2022-06-04
+
+### Miscellaneous Tasks
+
+- Use variable to avoid repeating Alpine Linux version
+- Add custom release script for bumping APKBUILD
+- [**breaking**] Move admin user creation to `setup-alpine`
+- Show instructions after installing `alpine.sh` package
+
 ## [0.1.0] - 2022-06-02
 
 ### Documentation
