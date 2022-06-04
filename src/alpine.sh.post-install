@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cat << EOF
+ ╔════════════════════════════════╣ alpine.sh ╠════════════════════════════════╗
+ ║ In order to load the required environment variables for automating          ║
+ ║ "setup-alpine", remember to either:                                         ║
+ ║  - Logout and login again as root                                           ║
+ ║  - Run ". /etc/profile.d/answerfile.sh"                                     ║
+ ╚═════════════════════════════════════════════════════════════════════════════╝
+EOF
