@@ -18,10 +18,12 @@ run-container:
 	docker run \
 		--rm \
 		-it \
+		$(and $(onlychecksum),-e UPDATE_CHECKSUM_ONLY=0) \
 		-e ALPINE_VERSION=$(ALPINE_VERSION) \
 		-v $(PWD)/src:/home/builder/alpine.sh \
 		-v $(PWD)/iso:/home/builder/iso \
 		alpine.sh
+	$(and $(onlychecksum),rm -r src/src) \
 
 release:
 	docker run \
