@@ -1,6 +1,8 @@
 # use Docker BuildKit for faster builds with caching enabled
 export DOCKER_BUILDKIT=1
 
+# sets alpine version used on the container that will build the custom ISO
+# and as the base for the custom ISO itself
 export ALPINE_VERSION=3.16
 
 clean-container:
@@ -13,7 +15,7 @@ build-container: clean-container
 		--build-arg HOST_UID=$$(id -u) \
 		docker
 
-run-container:
+build-iso: build-container
 	mkdir -p iso
 	docker run \
 		--rm \

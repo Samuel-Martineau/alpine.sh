@@ -16,16 +16,16 @@ installed on your computer
 Run the command below to build and run the container that will generate the ISO:
 
 ```
-make build-container run-container
+make build-iso
 ```
 
 When it's done, the ISO will be located on the `iso` directory
 
 > If you only want to only update the `APKBUILD` checksums, pass the
-> `onlychecksum=0` argument when running `run-container`, example below:
+> `onlychecksum=0` argument when running `build-iso`, example below:
 >
 > ```
-> make run-container onlychecksum=0
+> make build-iso onlychecksum=0
 > ```
 
 ### Installation
