@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2022-06-05
+
+### Documentation
+
+- Remove unnecessary word
+
+### Miscellaneous Tasks
+
+- Allow updating `APKBUILD` checksums without building iso
+- Build container and iso with `build-iso` makefile rule
+- [**breaking**] Remove `-c` flags from `SSHOPTS` and `NTPOPTS`
+
 ## [0.2.0] - 2022-06-04
 
 ### Miscellaneous Tasks

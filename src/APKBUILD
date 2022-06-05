@@ -1,6 +1,6 @@
 # Maintainer: henriquehbr <henriqueborgeshbr@gmail.com>
 pkgname=alpine.sh
-pkgver=v0.2.0
+pkgver=v0.3.0
 pkgrel=1
 pkgdesc="An answerfile and automated post-install script for Alpine Linux"
 url="https://git.sr.ht/~henriquehbr/alpine.sh"
