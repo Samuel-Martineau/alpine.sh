@@ -46,12 +46,12 @@ APKREPOSOPTS="-1 -c"
 #       or 'none' for no key
 USEROPTS="-a -g video,input,audio hbr"
 
-# -c -> choice of SSH daemon: openssh, dropbear, none
 # -k -> authorized key for root (HTTP(S)/FTP URL, the public key itself or 'none')
-SSHDOPTS="-c openssh"
+# choice of SSH daemon: openssh, dropbear, none
+SSHDOPTS="openssh"
 
-# -c -> choice of NTP daemon: busybox, openntpd, chrony, none
-NTPOPTS="-c openntpd"
+# choice of NTP daemon: busybox, openntpd, chrony, none
+NTPOPTS="openntpd"
 
 # -e -> encrypt disk
 # -m -> use disk for mode without asking, where MODE is either 'data' or 'sys'
