@@ -125,6 +125,11 @@ enable_docker_service() {
     rc-update add docker
     rc-service docker start
 
+    # docker-in-docker requires the "tun" kernel module in order to work properly
+    # as this module is not built-in into Alpine's stock kernel, we need to initialize
+    # it on boot
+    echo tun >> /etc/modules
+
     _complete_steps enable_docker_service welcome
 }
 
