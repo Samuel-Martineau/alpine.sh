@@ -1,5 +1,0 @@
-#!/bin/sh
-
-version=$1
-
-sed -i -E s/pkgver=.*/pkgver=$version/ src/APKBUILD

@@ -1,14 +1,12 @@
 #!/bin/sh
+# Copyright 2021,2022 Henrique Borges
+# Copyright 2023 Samuel Martineau
 
 # this script performs the finishing touches required to make the system more
 # usable
 
 # NOTE: all functions prefixed with a underscore (_) are helper functions and
 # shouldn't be considered as installation steps
-
-# TODO: think of a way of supporting containerized wayland workspaces without
-#       having to install a wayland-only dependency for keeping things minimal
-#       (in this case, the dependency being "seatd")
 
 # ------------------------------------------------------------------------------
 
@@ -40,9 +38,9 @@ welcome() {
     echo "This post-installation script will perform the following tasks:"
     echo "- Install a set of essential packages"
     echo "- Setup non-root user ($USER_NAME) password, and add it to the 'docker' group"
-    echo "- Replace 'mdev' with 'eudev'"
-    echo "- Enable 'seatd' service to run at boot (and start it)"
     echo "- Enable the Docker service to run at boot (and start it)"
+    echo "- Setup Mailrise and notifications"
+    echo "- Setup SSHD and other general settings"
     echo
     read -rp "Proceed? (y/N) " proceed
     if echo "$proceed" | grep -vE "^[yY]$"; then
@@ -51,21 +49,11 @@ welcome() {
 }
 
 # installs a set of packages to make the system more usable
-# ---------------------------------------------------------
-# docker -> run containerized applications from "docker-experiment"
-# git -> create and clone git repositories
-# make -> create and run tasks from Makefiles (required by "docker-experiment")
-# eudev -> replaces "mdev" with proper support for keyboard and mouse on Xorg
-# seatd -> required for running wayland compositors
-# alsa-utils -> provides "alsamixer" which is used to control the audio volume
-# pulseaudio -> required to make the audio work properly
-# pulseaudio-utils -> provides "pactl" which is used to generate "pulseaudio"
-#                     shared sockets to be used in containerized applications
-# udev-init-scripts -> required for udev to work
-# udev-init-scripts-openrc -> required for udev to work
 install_essential_packages() {
     _infobox "Installing essential packages"
-    apk add docker git make eudev seatd alsa-utils pulseaudio pulseaudio-utils udev-init-scripts udev-init-scripts-openrc
+    apk update
+    apk upgrade
+    apk add docker git vim man-pages mandoc mandoc-apropos mailx bash python3 py3-pip shadow docs
 
     _complete_steps install_essential_packages
 }
@@ -86,38 +74,12 @@ setup_user() {
     _infobox "Adding '$USER_NAME' to the 'docker' group"
     addgroup "$USER_NAME" docker
 
+    _infobox "Setting '$USER_NAME' shell to bash"
+    chsh -s /bin/bash admin
+
     _complete_steps setup_user
 }
 
-# disables "mdev" and delete it's service from openrc
-# mouse and keyboard don't work properly on Xorg with "mdev", "eudev" is
-# required
-disable_mdev() {
-    rc-service -s mdev stop
-    rc-update delete mdev sysinit
-
-    _complete_steps disable_mdev
-}
-
-# enables "eudev" and it's services
-enable_eudev() {
-    rc-update add udev sysinit
-    rc-update add udev-trigger sysinit
-    rc-update add udev-settle sysinit
-    rc-update add udev-postmount default
-    rc-service udev start
-
-    _complete_steps enable_eudev
-}
-
-# enables "seatd" in order to run wayland compositors
-enable_seatd() {
-    _infobox "Enabling seatd service to run on boot"
-    rc-update add seatd
-    rc-service seatd start
-
-    _complete_steps enable_seatd
-}
 
 # enables docker service to run on boot and starts it
 enable_docker_service() {
@@ -130,16 +92,127 @@ enable_docker_service() {
     # it on boot
     echo tun >> /etc/modules
 
-    _complete_steps enable_docker_service welcome
+    _complete_steps enable_docker_service
+}
+
+setup_mailrise_notifications() {
+    _infobox "Setting up Mailrise"
+
+    pip install --root-user-action=ignore           PyYAML==6.0.1 apprise aiosmtpd
+    pip install --root-user-action=ignore --no-deps mailrise
+
+    read -p "Enter pushover user key: " POVER_USER_KEY
+    read -p "Enter pushover API token: " POVER_API_TOKEN
+    cat << EOF > /etc/mailrise.conf
+configs:
+  pushover:
+    urls:
+      - pover://${POVER_USER_KEY}@${POVER_API_TOKEN}
+listen:
+  port: 25
+  host: localhost
+
+EOF
+    chmod 600 /etc/mailrise.conf
+
+    cat << EOF > /etc/init.d/mailrise
+#!/sbin/openrc-run
+
+name="mailrise"
+command="/usr/bin/mailrise"
+command_args="/etc/mailrise.conf"
+pidfile="/run/${RC_SVCNAME}.pid"
+command_background=true
+
+EOF
+
+    chmod +x /etc/init.d/mailrise
+    
+    rc-service mailrise start
+
+    _infobox "Setting up notifications"
+
+    cat << EOF > /usr/local/bin/notify
+#!/bin/bash
+
+echo "\$4" | mail -s "\$3" -r "\$2" "\$1@mailrise.xyz"
+
+EOF
+    chmod 755 /usr/local/bin/notify
+
+    cat << EOF > /usr/local/bin/ssh-shell
+#!/bin/bash
+
+ip=\`echo \$SSH_CONNECTION | cut -d " " -f 1\`
+/usr/local/bin/notify pushover \$USER@\$(hostname) "SSH Login" "User \$USER just logged in from \$ip"
+
+if [[ -n \$SSH_ORIGINAL_COMMAND ]] # command given, so run it
+then
+    exec /bin/bash -c "\$SSH_ORIGINAL_COMMAND"
+else # no command, so interactive login shell
+    exec bash -il
+fi
+
+EOF
+    chmod 755 /usr/local/bin/ssh-shell
+
+    cat << EOF > /etc/periodic/daily/check-updates
+#/bin/bash
+
+apk update
+AVAILABLE_UPDATES=\$(apk list -u)
+if [ ! -z "\$AVAILABLE_UPDATES" ]
+then
+    notify pushover cron@\$(hostname) "Available updates" "\$AVAILABLE_UPDATES"
+fi
+
+EOF
+    chmod 755 /etc/periodic/daily/check-updates
+
+    _complete_steps setup_mailrise_notifications
+}
+
+setup_sshd_general_settings() {
+    _infobox "Setting up SSHD"
+
+    echo -e "Include /etc/ssh/sshd_config.d/*.conf\n$(cat /etc/ssh/sshd_config)" > /etc/ssh/sshd_config
+    
+    mkdir /etc/ssh/sshd_config.d
+
+    cat << EOF > /etc/ssh/sshd_config.d/harden.conf
+PermitRootLogin no
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+X11Forwarding no
+PermitUserEnvironment no
+AllowAgentForwarding no
+AllowTcpForwarding no
+PermitTunnel no
+ForceCommand /usr/local/bin/ssh-shell
+
+EOF
+
+    rc-service sshd restart
+
+    _infobox "Enable prompt color"
+    mv /etc/profile.d/color_prompt.sh.disabled /etc/profile.d/color_prompt.sh
+
+    _infobox "Disabling MOTD"
+    echo -n "" | tee /etc/motd
+
+    _infobox "Setting 'root' shell to bash"
+    chsh -s /bin/bash root
+
+    _complete_steps setup_sshd_general_settings
 }
 
 welcome
 install_essential_packages
 setup_user
-disable_mdev
-enable_eudev
-enable_seatd
 enable_docker_service
+setup_mailrise_notifications
+setup_sshd_general_settings
+_complete_steps welcome
 
 _infobox "Post-installation finished!"
 apk del alpine.sh

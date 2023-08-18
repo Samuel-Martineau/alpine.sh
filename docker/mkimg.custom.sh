@@ -1,3 +1,5 @@
+# Copyright 2021,2022 Henrique Borges
+
 profile_custom() {
     profile_standard
     title="Custom"

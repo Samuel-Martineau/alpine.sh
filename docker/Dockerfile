@@ -1,3 +1,5 @@
+# Copyright 2021,2022 Henrique Borges
+
 ARG ALPINE_VERSION
 
 FROM alpine:${ALPINE_VERSION}

@@ -1,9 +1,11 @@
-# Maintainer: henriquehbr <henriqueborgeshbr@gmail.com>
+# Copyright 2021,2022 Henrique Borges
+# Copyright 2023 Samuel Martineau
+# Maintainer: Samuel-Martineau <samuel@smartineau.me>
 pkgname=alpine.sh
-pkgver=v0.3.0
+pkgver=v0.0.0
 pkgrel=1
 pkgdesc="An answerfile and automated post-install script for Alpine Linux"
-url="https://git.sr.ht/~henriquehbr/alpine.sh"
+url="https://github.com/Samuel-Martineau/alpine.sh"
 arch="all"
 license="GPL-3.0-or-later"
 install="$pkgname.post-install"
@@ -17,6 +19,6 @@ package() {
 	cp -f post-install "$pkgdir"/usr/bin
 }
 sha512sums="
-e5648a934b66dd08f8e6b72aa260fffb9591426e9a6418eacb87a71ef2e6951973607cb2f5a7ce9a37757bda615bd593dfb271906ee4081a772c9fccd8eb7009  answerfile.sh
-0895d92f352bf3d92b6c21e1759aca28180cbc135c9c57616f1bd09aaf33b98cfccb61a472c1e4df57e4f76784d64a1d83cecd962ab858adda1bd72d9214e619  post-install
+bc67297b60436400b01ee3de4e65e78c62df23edd1776b46b5135ebfaddb1e90e437c792f9b27e71a3c6c1a91ce2d077f0cf7e61d1265ba7eda27aea182f706a  answerfile.sh
+a7f604f255dd51de22d200c3bfd3f0fd149e561e0d00014cc428e843d6fddfbb9b826ab7fc108cb9f6c68b89b52d6e6a06ae3454ccd7ee310c0977bd7feffe4e  post-install
 "

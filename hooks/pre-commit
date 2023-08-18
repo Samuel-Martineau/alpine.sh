@@ -1,0 +1,10 @@
+#!/bin/bash
+# Copyright 2023 Samuel Martineau
+
+exec < /dev/tty
+
+cd "$(dirname "$0")/.."
+
+make build-iso onlychecksum=true
+
+git add ./src/APKBUILD
